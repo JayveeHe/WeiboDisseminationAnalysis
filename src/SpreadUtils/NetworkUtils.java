@@ -79,7 +79,8 @@ public class NetworkUtils {
                 "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.153 Safari/537.36 SE 2.X MetaSr 1.0");
         conn.setRequestProperty("Host", host);
         conn.setRequestProperty("Method", "GET");
-        String cookie = FileUtils.File2str("./conf/cookie");
+//        String cookie = FileUtils.File2str("./conf/cookie");
+        String cookie = "_T_WM=22ad92260e68abc91011b63fc290ab0e; M_WEIBOCN_PARAMS=featurecode%3D20000180%26oid%3D3838715913240258%26luicode%3D20000061%26lfid%3D3838715913240258%26uicode%3D20000061%26fid%3D3838715913240258";
 		conn.setRequestProperty("Cookie",cookie);
         conn.connect();
         InputStream is = conn.getInputStream();

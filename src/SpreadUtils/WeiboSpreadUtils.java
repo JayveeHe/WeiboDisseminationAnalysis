@@ -26,7 +26,6 @@ import FastForce.FastForceDirected;
 import Nodes.SpreadNodeData;
 import SpreadUtils.PlotUtils.IDrawableNode;
 
-import com.google.gson.JsonObject;
 
 public class WeiboSpreadUtils {
     public static String ACCESS_TOKEN = "2.00zooRcF0m6btu8b0dfb8e19N11dDB";
@@ -49,7 +48,7 @@ public class WeiboSpreadUtils {
      */
     public static int[] WeiboSpread(String URL, String filename,
                                     int time_interval) throws IOException {
-
+        double time = System.currentTimeMillis();
         Map<String, SpreadNodeData> map = null;
         try {
 //            map = WeiboSpreadUtils.createMapByURL(URL);
@@ -71,7 +70,7 @@ public class WeiboSpreadUtils {
             return null;
         }
         System.out.println("开始布点计算……");
-        double time = System.currentTimeMillis();
+
         double[][] result = new FastForceDirected()
                 .PositionComputeProcess(PlotUtils.transToFormat(info_map));
         int count = 0;
@@ -83,23 +82,30 @@ public class WeiboSpreadUtils {
         time = System.currentTimeMillis() - time;
         System.out.println("用时：" + time / 1000 + "秒");
         if (filename != null) {
-            GexfUtils.createGexf(info_map, filename);
+            filename = filename.replace(".gexf","");
+            GexfUtils.createGexf(info_map, filename+ ".gexf");
         } else {
             GexfUtils.createGexf(info_map, System.currentTimeMillis() + "-"
                     + WeiboSpreadUtils.show_name + ".gexf");
-            File file = new File(System.currentTimeMillis() + "-count.txt");
-            FileOutputStream os = new FileOutputStream(file);
-            FileWriter fw = new FileWriter(file);
-            fw.append("url=" + URL + "\n");
-            fw.append("interval=" + time_interval + "\n");
-            fw.append("counts=\n");
-            for (int i = 0; i < curve.length; i++) {
-                String str = String.valueOf(curve[i]) + " ";
-                fw.append(str);
-            }
-            os.flush();
-            os.close();
+            filename = System.currentTimeMillis() + "-"
+                    + WeiboSpreadUtils.show_name;
         }
+        File file = new File(filename + "-count.txt");
+        FileOutputStream os = new FileOutputStream(file);
+        FileWriter fw = new FileWriter(file);
+        os.write(("url=" + URL + "\n").getBytes("utf-8"));
+        os.write(("interval=" + time_interval + "\n").getBytes("utf-8"));
+        os.write(("counts=\n").getBytes("utf-8"));
+//            fw.append("url=" + URL + "\n");
+//            fw.append("interval=" + time_interval + "\n");
+//            fw.append("counts=\n");
+        for (int i = 0; i < curve.length; i++) {
+            String str = String.valueOf(curve[i]) + " ";
+//                fw.append(str);
+            os.write(str.getBytes("utf-8"));
+        }
+        os.flush();
+        os.close();
         return curve;
     }
 
@@ -336,7 +342,7 @@ public class WeiboSpreadUtils {
             System.out.println("转发数大于" + max_count + ",可能丢失应有的转发关系！");
             // throw new WeiboSpreadException(
             // WeiboSpreadException.REPOST_COUNT_ERROR);
-            max_page = 10;
+            max_page = 100;
         } else {
             max_page = (int) Math.ceil(show_repost_count / 10f);// 向上取整
         }
@@ -581,8 +587,13 @@ public class WeiboSpreadUtils {
             dateString = dateString + time;
             Date parse = today_formatter.parse(dateString);
             return parse.getTime();
+        } else if (time.contains("2014-")) {
+//            time = "2015-"+time;
+            Date parse = common_formatter.parse(time);
+//            parse.setYear(2015);
+            return parse.getTime();
         } else {
-            time = "2015-"+time;
+            time = "2015-" + time;
             Date parse = common_formatter.parse(time);
 //            parse.setYear(2015);
             return parse.getTime();
