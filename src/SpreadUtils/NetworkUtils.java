@@ -82,6 +82,7 @@ public class NetworkUtils {
 //        String cookie = FileUtils.File2str("./conf/cookie");
         String cookie = "_T_WM=22ad92260e68abc91011b63fc290ab0e; M_WEIBOCN_PARAMS=featurecode%3D20000180%26oid%3D3838715913240258%26luicode%3D20000061%26lfid%3D3838715913240258%26uicode%3D20000061%26fid%3D3838715913240258";
 		conn.setRequestProperty("Cookie",cookie);
+        conn.setReadTimeout(3000);
         conn.connect();
         InputStream is = conn.getInputStream();
 

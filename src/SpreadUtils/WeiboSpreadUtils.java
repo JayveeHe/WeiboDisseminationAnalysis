@@ -46,13 +46,14 @@ public class WeiboSpreadUtils {
      * @return int[]形式的转发曲线坐标
      * @throws IOException
      */
-    public static int[] WeiboSpread(String URL, String filename,
+    public static JSONObject WeiboSpread(String URL, String filename,
                                     int time_interval) throws IOException {
         double time = System.currentTimeMillis();
         Map<String, SpreadNodeData> map = null;
+        JSONObject resultRoot = new JSONObject();
         try {
 //            map = WeiboSpreadUtils.createMapByURL(URL);
-            map = WeiboSpreadUtils.getMapByURL(URL);
+            map = WeiboSpreadUtils.getMapByURL(URL, resultRoot);
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -82,31 +83,43 @@ public class WeiboSpreadUtils {
         time = System.currentTimeMillis() - time;
         System.out.println("用时：" + time / 1000 + "秒");
         if (filename != null) {
-            filename = filename.replace(".gexf","");
-            GexfUtils.createGexf(info_map, filename+ ".gexf");
+            filename = filename.replace(".gexf", "");
+            GexfUtils.createGexf(info_map, filename + ".gexf");
         } else {
             GexfUtils.createGexf(info_map, System.currentTimeMillis() + "-"
                     + WeiboSpreadUtils.show_name + ".gexf");
             filename = System.currentTimeMillis() + "-"
                     + WeiboSpreadUtils.show_name;
         }
-        File file = new File(filename + "-count.txt");
+        File file = new File(filename + "-data.txt");
         FileOutputStream os = new FileOutputStream(file);
-        FileWriter fw = new FileWriter(file);
-        os.write(("url=" + URL + "\n").getBytes("utf-8"));
-        os.write(("interval=" + time_interval + "\n").getBytes("utf-8"));
-        os.write(("counts=\n").getBytes("utf-8"));
-//            fw.append("url=" + URL + "\n");
-//            fw.append("interval=" + time_interval + "\n");
-//            fw.append("counts=\n");
-        for (int i = 0; i < curve.length; i++) {
-            String str = String.valueOf(curve[i]) + " ";
-//                fw.append(str);
-            os.write(str.getBytes("utf-8"));
+        try {
+            resultRoot.put("url", URL);
+            resultRoot.put("time_interval", time_interval);
+            JSONArray time_series = new JSONArray();
+            for (int i:curve){
+                time_series.put(i);
+            }
+            resultRoot.put("time_series", time_series);
+            os.write(resultRoot.toString().getBytes("utf-8"));
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
+//        os.write(("url=" + URL + "\n").getBytes("utf-8"));
+//        os.write(("interval=" + time_interval + "\n").getBytes("utf-8"));
+//        os.write(("counts=\n").getBytes("utf-8"));
+////            fw.append("url=" + URL + "\n");
+////            fw.append("interval=" + time_interval + "\n");
+////            fw.append("counts=\n");
+//        for (int i = 0; i < curve.length; i++) {
+//            String str = String.valueOf(curve[i]) + " ";
+////                fw.append(str);
+//            os.write(str.getBytes("utf-8"));
+//        }
         os.flush();
         os.close();
-        return curve;
+        System.out.println(file.getAbsolutePath());
+        return resultRoot;
     }
 
     /**
@@ -282,7 +295,7 @@ public class WeiboSpreadUtils {
     }
 
 
-    private static Map<String, SpreadNodeData> getMapByURL(String url) throws IOException, JSONException, WeiboSpreadException {
+    private static Map<String, SpreadNodeData> getMapByURL(String url, JSONObject resultRoot) throws IOException, JSONException, WeiboSpreadException {
         Map<String, SpreadNodeData> map = new HashMap<String, SpreadNodeData>();
         //取出原po的id
         Matcher m = Pattern.compile("/\\d{5,}/").matcher(url);
@@ -363,6 +376,9 @@ public class WeiboSpreadUtils {
                 show_repost_link, show_repost_count);
         map.put(show_name + "-0", showData);// 首先在map中加入根节点信息
         System.out.println(showData.getName() + ":" + showData.getText());
+        //在resultRoot中添加待分析微博的内容
+        resultRoot.put("weiboText", showData.getText());
+
         //开始读取转发
 
         int page = 1;

@@ -1,6 +1,7 @@
 package Main;
 
 import SpreadUtils.WeiboSpreadUtils;
+import org.json.JSONObject;
 
 import java.io.IOException;
 
@@ -15,7 +16,7 @@ public class Main {
             if (args.length > 2) {
                 outputpath = args[2];
             }
-            int[] count = WeiboSpreadUtils.WeiboSpread(url,
+            JSONObject result = WeiboSpreadUtils.WeiboSpread(url,
                     outputpath, interval);
         } else {
             System.out.println("输入正确的参数：[url] [interval] [outputpath](可选，否则为默认)");
