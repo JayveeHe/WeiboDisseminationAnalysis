@@ -65,13 +65,13 @@ public class NetworkUtils {
     public static String getReq(String url, String host) throws MalformedURLException,
             IOException {
         //通知Java您要通过代理进行连接
-		System.getProperties().put("proxySet", "true");
-
-		//指定代理所在的服务器
-		System.getProperties().put("proxyHost", "127.0.0.1");
-
-		//指定代理监听的端口
-		System.getProperties().put("proxyPort", "8087");
+//		System.getProperties().put("proxySet", "true");
+//
+//		//指定代理所在的服务器
+//		System.getProperties().put("proxyHost", "127.0.0.1");
+//
+//		//指定代理监听的端口
+//		System.getProperties().put("proxyPort", "8087");
         URLConnection conn = new java.net.URL(url).openConnection();
         conn.setRequestProperty("accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
         conn.setRequestProperty("connection", "Keep-Alive");
