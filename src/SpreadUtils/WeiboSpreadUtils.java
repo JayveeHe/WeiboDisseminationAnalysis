@@ -8,12 +8,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -47,7 +42,7 @@ public class WeiboSpreadUtils {
      * @throws IOException
      */
     public static JSONObject WeiboSpread(String URL, String filename,
-                                    int time_interval) throws IOException {
+                                         int time_interval) throws IOException {
         double time = System.currentTimeMillis();
         Map<String, SpreadNodeData> map = null;
         JSONObject resultRoot = new JSONObject();
@@ -59,7 +54,7 @@ public class WeiboSpreadUtils {
             e.printStackTrace();
         }
         // 进行转发时间统计
-        int[] curve = WeiboSpreadUtils.countCurve(map, time_interval);
+        int[] curve = WeiboSpreadUtils.countCurve(map, time_interval, 10, resultRoot);
         for (int i = 0; i < curve.length; i++) {
             System.out.println("第" + i + "个时间段的转发数=" + curve[i]);
         }
@@ -97,7 +92,7 @@ public class WeiboSpreadUtils {
             resultRoot.put("url", URL);
             resultRoot.put("time_interval", time_interval);
             JSONArray time_series = new JSONArray();
-            for (int i:curve){
+            for (int i : curve) {
                 time_series.put(i);
             }
             resultRoot.put("time_series", time_series);
@@ -350,6 +345,7 @@ public class WeiboSpreadUtils {
         show_name = object_show.getJSONObject("user").getString("screen_name");
         int show_repost_count = object_show.getInt("reposts_count");
         System.out.println("转发总数：" + show_repost_count);
+        resultRoot.put("repost_count", show_repost_count);
         int max_page = 0;
         if (show_repost_count > max_count) {
             System.out.println("转发数大于" + max_count + ",可能丢失应有的转发关系！");
@@ -378,7 +374,7 @@ public class WeiboSpreadUtils {
         System.out.println(showData.getName() + ":" + showData.getText());
         //在resultRoot中添加待分析微博的内容
         resultRoot.put("weiboText", showData.getText());
-
+        resultRoot.put("userName",showData.getName());
         //开始读取转发
 
         int page = 1;
@@ -543,13 +539,35 @@ public class WeiboSpreadUtils {
      * @param map
      * @param interval 时间间隔，以分钟计
      */
-    public static int[] countCurve(Map<String, SpreadNodeData> map, int interval) {
+    public static int[] countCurve(Map<String, SpreadNodeData> map, int interval, int maxRank, JSONObject resultRoot) {
         // 转发数统计排名
         ArrayList<SpreadNodeData> arrayCountList = new ArrayList<>(map.values());
         Collections.sort(arrayCountList,
                 new SpreadNodeData.DescRepostCountComparator());
+        JSONArray rankData = new JSONArray();
         for (int i = 0; i < arrayCountList.size(); i++) {
-            arrayCountList.get(i).repost_rank = i + 1;// 设置转发排名
+            SpreadNodeData nodeData = arrayCountList.get(i);
+            nodeData.repost_rank = i + 1;// 设置转发排名
+            if (i < maxRank) {
+                JSONObject singleData = new JSONObject();
+                try {
+                    singleData.put("name", nodeData.getName());
+                    singleData.put("text", nodeData.getText());
+                    singleData.put("post_time", parseTime(nodeData.getPost_time()));
+                    singleData.put("repost_count", nodeData.getRepost_count());
+                    singleData.put("rank",nodeData.repost_rank);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                rankData.put(singleData);
+            }
+        }
+        try {
+            resultRoot.put("repostRank", rankData);
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
         // 发送时间排序
         // ArrayList<SpreadNodeData> arrayTimeList = new
@@ -569,14 +587,28 @@ public class WeiboSpreadUtils {
         }
         long startTime = timelist.get(0);
         long endTime = timelist.get(timelist.size() - 1);
-        double temp = Math.ceil((endTime - startTime) / time_interval);
+//        double temp = Math.ceil((endTime - startTime) / time_interval);
         int arraylen = (int) Math.ceil((endTime - startTime) / time_interval);
         int[] countArray = new int[arraylen + 1];
+        //存储时间点信息
+//        JSONArray timestamps = null;
+        //            timestamps = new JSONArray(Arrays.toString(countArray));
+        try {
+            resultRoot.put("repost_startTime",startTime);
+            resultRoot.put("repost_endTime",endTime);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         for (int i = 0; i < timelist.size(); i++) {
-            int number = (int) (Math.floor((timelist.get(i) - startTime)
+            Long curTime = timelist.get(i);
+            int number = (int) (Math.floor((curTime - startTime)
                     / time_interval));
             countArray[number]++;
+//                if (curTime > timestamps.getLong(number)) {
+//                    timestamps.put(number, curTime);
+//                }
         }
+//            resultRoot.put("time_stamps",timestamps);
         return countArray;
     }
 
