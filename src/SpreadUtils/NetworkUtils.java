@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.Proxy;
+import java.net.SocketTimeoutException;
 import java.net.URLConnection;
 
 public class NetworkUtils {
@@ -40,7 +41,19 @@ public class NetworkUtils {
                 "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1)");
         conn.setRequestProperty("Method", "GET");
 //		conn.set
-        conn.connect();
+        conn.setReadTimeout(5000);
+        try {
+            conn.connect();
+        } catch (SocketTimeoutException ste) {
+            long sleepTime = (long) (2 * Math.random() * 1000);
+            try {
+                Thread.sleep(sleepTime);
+                System.out.println("超时，" + sleepTime + "毫秒后重连");
+                conn.connect();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
         InputStream is = conn.getInputStream();
 
         ByteArrayOutputStream rbaos = new ByteArrayOutputStream();
@@ -82,8 +95,19 @@ public class NetworkUtils {
 //        String cookie = FileUtils.File2str("./conf/cookie");
 //        String cookie = "_T_WM=22ad92260e68abc91011b63fc290ab0e; M_WEIBOCN_PARAMS=featurecode%3D20000180%26oid%3D3838715913240258%26luicode%3D20000061%26lfid%3D3838715913240258%26uicode%3D20000061%26fid%3D3838715913240258";
 //		conn.setRequestProperty("Cookie",cookie);
-        conn.setReadTimeout(3000);
-        conn.connect();
+        conn.setReadTimeout(5000);
+        try {
+            conn.connect();
+        } catch (SocketTimeoutException ste) {
+            long sleepTime = (long) (2 * Math.random() * 1000);
+            try {
+                Thread.sleep(sleepTime);
+                System.out.println("超时，" + sleepTime + "毫秒后重连");
+                conn.connect();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
         InputStream is = conn.getInputStream();
 
         ByteArrayOutputStream rbaos = new ByteArrayOutputStream();
