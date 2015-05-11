@@ -75,7 +75,7 @@ public class NetworkUtils {
      * @throws MalformedURLException
      * @throws IOException
      */
-    public static String getReq(String url, String host) throws MalformedURLException,
+    public static String  getReq(String url, String host) throws MalformedURLException,
             IOException {
         //通知Java您要通过代理进行连接
 //		System.getProperties().put("proxySet", "true");
@@ -93,8 +93,8 @@ public class NetworkUtils {
         conn.setRequestProperty("Host", host);
         conn.setRequestProperty("Method", "GET");
 //        String cookie = FileUtils.File2str("./conf/cookie");
-//        String cookie = "_T_WM=22ad92260e68abc91011b63fc290ab0e; M_WEIBOCN_PARAMS=featurecode%3D20000180%26oid%3D3838715913240258%26luicode%3D20000061%26lfid%3D3838715913240258%26uicode%3D20000061%26fid%3D3838715913240258";
-//		conn.setRequestProperty("Cookie",cookie);
+        String cookie = "_WEIBO_UID=1692530220; _T_WM=0a3c9e8617a78ab09d2decd121efe66a; SUB=_2A254VLx_DeTxGedI4lAU8y7OyTyIHXVbtsQ3rDV6PUJbvNANLWj6kW1kU5d2oPNf2IE8wNuYZ4sbiHvZYg..; SUBP=0033WrSXqPxfM725Ws9jqgMF55529P9D9WFhR8XsKz4fOX-kiJ8IYPLv5JpX5K-t; SUHB=0ebczeZBpGiws7; SSOLoginState=1431358511; M_WEIBOCN_PARAMS=uicode%3D20000061%26featurecode%3D20000180%26fid%3D3793975192110178%26oid%3D3793975192110178";
+        conn.setRequestProperty("Cookie",cookie);
         conn.setReadTimeout(5000);
         try {
             conn.connect();

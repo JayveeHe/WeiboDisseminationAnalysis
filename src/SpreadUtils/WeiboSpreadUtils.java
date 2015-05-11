@@ -1,25 +1,21 @@
 package SpreadUtils;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import FastForce.FastForceDirected;
+import Nodes.SpreadNodeData;
+import SpreadUtils.PlotUtils.IDrawableNode;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
-import FastForce.FastForceDirected;
-import Nodes.SpreadNodeData;
-import SpreadUtils.PlotUtils.IDrawableNode;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public class WeiboSpreadUtils {
@@ -42,7 +38,7 @@ public class WeiboSpreadUtils {
      * @throws IOException
      */
     public static JSONObject WeiboSpread(String URL, String filename,
-                                         int time_interval) throws IOException {
+                                    int time_interval) throws IOException {
         double time = System.currentTimeMillis();
         Map<String, SpreadNodeData> map = null;
         JSONObject resultRoot = new JSONObject();
@@ -54,7 +50,7 @@ public class WeiboSpreadUtils {
             e.printStackTrace();
         }
         // 进行转发时间统计
-        int[] curve = WeiboSpreadUtils.countCurve(map, time_interval, 10, resultRoot);
+        int[] curve = WeiboSpreadUtils.countCurve(map, time_interval,10,resultRoot);
         for (int i = 0; i < curve.length; i++) {
             System.out.println("第" + i + "个时间段的转发数=" + curve[i]);
         }
@@ -92,7 +88,7 @@ public class WeiboSpreadUtils {
             resultRoot.put("url", URL);
             resultRoot.put("time_interval", time_interval);
             JSONArray time_series = new JSONArray();
-            for (int i : curve) {
+            for (int i:curve){
                 time_series.put(i);
             }
             resultRoot.put("time_series", time_series);
@@ -290,7 +286,7 @@ public class WeiboSpreadUtils {
     }
 
 
-    private static Map<String, SpreadNodeData> getMapByURL(String url, JSONObject resultRoot) throws IOException, JSONException, WeiboSpreadException {
+    private static Map<String, SpreadNodeData> getMapByURL(String url, JSONObject resultRoot) throws IOException, JSONException, WeiboSpreadException, InterruptedException {
         Map<String, SpreadNodeData> map = new HashMap<String, SpreadNodeData>();
         //取出原po的id
         Matcher m = Pattern.compile("/\\d{5,}/").matcher(url);
@@ -502,6 +498,7 @@ public class WeiboSpreadUtils {
             root = temparr.getJSONObject(0);
             card_group = root.optJSONArray("card_group");
 //            }
+            Thread.sleep((long) (Math.random()*100));
         }
         setRelationship(map);
         return map;
@@ -585,6 +582,7 @@ public class WeiboSpreadUtils {
 //            long nodeTime = Long.parseLong(data.getPost_time());
             timelist.add(nodeTime);
         }
+        Collections.sort(timelist);
         long startTime = timelist.get(0);
         long endTime = timelist.get(timelist.size() - 1);
 //        double temp = Math.ceil((endTime - startTime) / time_interval);
@@ -608,7 +606,6 @@ public class WeiboSpreadUtils {
 //                    timestamps.put(number, curTime);
 //                }
         }
-//            resultRoot.put("time_stamps",timestamps);
         return countArray;
     }
 
@@ -668,7 +665,7 @@ public class WeiboSpreadUtils {
     }
 
     public static void main(String args[]) {
-        String url = "http://www.weibo.com/2865065844/CfguCDHqG?ref=home&rid=10_0_1_469010523311669667";
+        String url = "http://m.weibo.cn/1927074185/BDqIT8QX8";
         try {
 //            getMapByURL(url);
             WeiboSpread(url, "testout.gexf", 10);
