@@ -50,7 +50,7 @@ public class InfoNode implements IDrawableNode {
 		Color color = new Color(alpha, red, green, blue);
 
 		this.setColor(color);
-		this.setRadius((float) (1 + 0.005 * this.childs_wid.size()));
+		this.setRadius((float) (1 + 0.01 * this.childs_wid.size()));
 		// System.out.println(this.color);
 	}
 

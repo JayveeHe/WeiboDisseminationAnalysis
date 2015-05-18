@@ -665,7 +665,7 @@ public class WeiboSpreadUtils {
     }
 
     public static void main(String args[]) {
-        String url = "http://m.weibo.cn/1927074185/BDqIT8QX8";
+        String url = "http://www.weibo.com/3099016097/CinAid4Y2";
         try {
 //            getMapByURL(url);
             WeiboSpread(url, "testout.gexf", 10);
