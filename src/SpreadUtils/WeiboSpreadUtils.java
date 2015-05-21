@@ -142,6 +142,7 @@ public class WeiboSpreadUtils {
         String show_created_at = object_show.getString("created_at");
 
         root = new JSONObject();
+        show_text = show_text.replaceAll("<.*?>","");
         root.put("source_text", show_text);
         root.put("source_name", show_name);
         // root
@@ -328,8 +329,9 @@ public class WeiboSpreadUtils {
 
         String show_text = object_show.getString("text");
         //除掉html标记
-        show_text = show_text.replaceAll("<a.*?\">@", "@");
-        show_text = show_text.replaceAll("</a>", "");
+//        show_text = show_text.replaceAll("<a.*?\">@", "@");
+//        show_text = show_text.replaceAll("</a>", "");
+        show_text = show_text.replaceAll("<.*?>", "");
         String show_created_at = object_show.getString("created_at");
         //解析时间为标准格式
 
@@ -665,7 +667,7 @@ public class WeiboSpreadUtils {
     }
 
     public static void main(String args[]) {
-        String url = "http://www.weibo.com/3099016097/CinAid4Y2";
+        String url = "http://weibo.com/5102578803/CiR6nBeu9";
         try {
 //            getMapByURL(url);
             WeiboSpread(url, "testout.gexf", 10);
