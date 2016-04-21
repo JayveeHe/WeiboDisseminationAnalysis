@@ -491,16 +491,22 @@ public class WeiboSpreadUtils {
 //                new SpreadNodeData()
             }
             page++;
+            long l = (long) (Math.random() * 2000+2000);
+            System.out.println("防止被封，等待"+l+"毫秒");
+            Thread.sleep(l);
             System.out.println("准备爬取第" + page + "页");
             post_url = "http://m.weibo.cn/single/rcList?type=repost&format=cards&&hot=0&id=" + show_wid + "&page=" + page;
             repost_resp = NetworkUtils.getReq(post_url, "m.weibo.com");
 //        show_resp = (String) show_resp.subSequence(1, show_resp.length() - 1);
+            if(null==repost_resp){
+                break;
+            }
             tokener = new JSONTokener(repost_resp);
             temparr = (JSONArray) tokener.nextValue();
             root = temparr.getJSONObject(0);
             card_group = root.optJSONArray("card_group");
 //            }
-            Thread.sleep((long) (Math.random()*100));
+
         }
         setRelationship(map);
         return map;
@@ -634,13 +640,13 @@ public class WeiboSpreadUtils {
             dateString = dateString + time;
             Date parse = today_formatter.parse(dateString);
             return parse.getTime();
-        } else if (time.contains("2014-")) {
+        } else if (time.contains("201")) {
 //            time = "2015-"+time;
             Date parse = common_formatter.parse(time);
 //            parse.setYear(2015);
             return parse.getTime();
         } else {
-            time = "2015-" + time;
+            time = "2016-" + time;
             Date parse = common_formatter.parse(time);
 //            parse.setYear(2015);
             return parse.getTime();
@@ -667,7 +673,7 @@ public class WeiboSpreadUtils {
     }
 
     public static void main(String args[]) {
-        String url = "http://weibo.com/5102578803/CiR6nBeu9";
+        String url = "http://weibo.com/1642635773/Ds36Pb3Sj?ref=home&rid=8_0_1_2667339024871872527";
         try {
 //            getMapByURL(url);
             WeiboSpread(url, "testout.gexf", 10);

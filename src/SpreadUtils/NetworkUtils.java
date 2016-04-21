@@ -75,7 +75,7 @@ public class NetworkUtils {
      * @throws MalformedURLException
      * @throws IOException
      */
-    public static String  getReq(String url, String host) throws MalformedURLException,
+    public static String getReq(String url, String host) throws MalformedURLException,
             IOException {
         //通知Java您要通过代理进行连接
 //		System.getProperties().put("proxySet", "true");
@@ -89,35 +89,42 @@ public class NetworkUtils {
         conn.setRequestProperty("accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
         conn.setRequestProperty("connection", "Keep-Alive");
         conn.setRequestProperty("user-agent",
-                "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.153 Safari/537.36 SE 2.X MetaSr 1.0");
+                "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.112 Safari/537.36");
         conn.setRequestProperty("Host", host);
         conn.setRequestProperty("Method", "GET");
 //        String cookie = FileUtils.File2str("./conf/cookie");
-        String cookie = "_T_WM=52e123f869582779989409949cd420eb; SUB=_2A254XRVNDeTxGeNP71QV8S_EzTmIHXVbobsFrDV6PUJbrdBeLVrnkW2Dh0YqyW4_D8vQ2oTsuFI9QcOGAA..; SUHB=0D-V_faheNrwve; SSOLoginState=1431921948; M_WEIBOCN_PARAMS=uicode%3D20000174";
-        conn.setRequestProperty("Cookie",cookie);
+        String cookie = "SUB=_2A256HNkZDeRxGedI4lAU8y7OyTyIHXVZ_udRrDV6PUJbstAKLU_7kW1LHetlptaLNWC3LIUtLbcVgY5g5ibZ4A..; SUBP=0033WrSXqPxfM725Ws9jqgMF55529P9D9WFhR8XsKz4fOX-kiJ8IYPLv5JpX5o2p; SUHB=0KAAsD_oxdUCvI; SSOLoginState=1461233993; gsid_CTandWM=4uKICpOz5ZcT5YBRfp7ZG76iS3y; _T_WM=19625b40b11aa435089ba8562695c88f; M_WEIBOCN_PARAMS=uicode%3D20000061%26featurecode%3D20000180%26fid%3D3844940318873821%26oid%3D3844940318873821";
+        conn.setRequestProperty("Cookie", cookie);
         conn.setReadTimeout(5000);
-        try {
-            conn.connect();
-        } catch (SocketTimeoutException ste) {
-            long sleepTime = (long) (2 * Math.random() * 1000);
+        for (int i = 0; i < 3; i++) {
+            String Ret = null;
             try {
-                Thread.sleep(sleepTime);
-                System.out.println("超时，" + sleepTime + "毫秒后重连");
                 conn.connect();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-        InputStream is = conn.getInputStream();
+                InputStream is = conn.getInputStream();
 
-        ByteArrayOutputStream rbaos = new ByteArrayOutputStream();
-        byte[] rbuffer = new byte[128];
-        int riLen = -1;
-        while (-1 != (riLen = is.read(rbuffer)))
-            rbaos.write(rbuffer, 0, riLen);
-        final String Ret = new String(rbaos.toByteArray(), "utf-8");
+                ByteArrayOutputStream rbaos = new ByteArrayOutputStream();
+                byte[] rbuffer = new byte[128];
+                int riLen = -1;
+                while (-1 != (riLen = is.read(rbuffer)))
+                    rbaos.write(rbuffer, 0, riLen);
+                Ret = new String(rbaos.toByteArray(), "utf-8");
 //		new stri
-        return Ret;
+                return Ret;
+            } catch (SocketTimeoutException ste) {
+                long sleepTime = (long) (2 * Math.random() * 1000);
+                try {
+                    System.out.println("超时，" + sleepTime + "毫秒后重连");
+                    Thread.sleep(sleepTime);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            } catch (IOException ioe) {
+                System.out.println(ioe);
+                return null;
+            }
+
+        }
+        return null;
     }
 
     public static void main(String args[]) {
